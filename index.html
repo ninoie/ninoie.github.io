@@ -31,10 +31,59 @@
         display: block;
         padding: 24px;
       }
+      
+      path {
+        fill: none;
+        stroke-width: 1px;
+      }
     </style>
   </head>
   <body>
     <img src="xe.png"></img>
     <h1>numbers in numbers out</h1>
+    <div id="plot"></div>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+  // https://observablehq.com/@d3/d3-range
+  function range(start=0, stop=10, step=1) {
+    const array = [];
+    for (let i = 0, n = Math.ceil((stop - start) / step); i < n; ++i) {
+      array.push(start + i * step);
+    }
+    return array;
+  }
+
+  function linspace(start=0, stop=10, points=1000) {
+    var step = (stop - start) / (points - 1);
+    return range(start, stop + step, step);
+  }
+
+  var width  = 300;
+  var height = 200;
+
+  var x = linspace(-3.0, 3.0, 1000);
+  var y1 = x.map(i=>Math.E ** (-(i**2)));
+  var y2 = x.map(i=>Math.E ** (-(Math.PI * i**2)));
+  var y3 = x.map(i=>-2.0 * i * (Math.E ** (-(i**2))));
+
+  xmax = Math.max(...x);
+  xmin = Math.min(...x);
+  ymax = Math.max(Math.max(...y1), Math.max(...y2), Math.max(...y3));
+  ymin = Math.min(Math.min(...y1), Math.min(...y2), Math.min(...y3));
+  
+  var xscale = d3.scaleLinear().domain([xmin, xmax]).range([0, width]);
+  var yscale = d3.scaleLinear().domain([ymin, ymax]).range([height, 0]);
+  var line = d3.line().x((d, i) => xscale(d[0])).y((d, i) => yscale(d[1])).curve(d3.curveCardinal);
+  var svg = d3.select("#plot").append("svg").attr("width", width).attr("height", height);
+
+  svg.append("path").style("stroke", "#8eba42").attr("d", line(x.map((e,i) => [e,y1[i]])));
+  svg.append("path").style("stroke", "#348abd").attr("d", line(x.map((e,i) => [e,y2[i]])));
+  svg.append("path").style("stroke", "#e24a33").attr("d", line(x.map((e,i) => [e,y3[i]])));
+
+
+
+</script>
   </body>
 </html>
